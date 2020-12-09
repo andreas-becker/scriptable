@@ -1,49 +1,88 @@
-// Football-Bromance Widget v20201208 for Scriptable App
+// Football-Bromance Widget v20201209 for Scriptable App
 // created by Andreas Becker (andreasbecker.de)
 // Happy to receive feedback on https://github.com/andreas-becker/scriptable
+const FEED_URL = 'https://podcast3a6468.podigee.io/feed/aac'
+const emptyData = {
+  'link': FEED_URL,
+  'itunes:title': 'Daten nicht verfügbar',
+  'itunes:subtitle': '',
+  'itunes:duration': '',
+  'pubDate': ''
+}
+const data = await loadData()
+const app = data[0] || emptyData
+let widget = null
 
-const widget = await createWidget()
+if (config.widgetFamily == "small") {
+  widget = await createSmallWidget(app)
+} else {
+  widget = await createMediumWidget(app)
+}
 if (!config.runsInWidget) {
   await widget.presentMedium()
 }
 Script.setWidget(widget)
 Script.complete()
 
-async function createWidget(items) {
-  const data = await loadData()
-  const list = new ListWidget()
-  if(data) {
-    const header = list.addText(data[0]['itunes:title'])
-    header.textColor = Color.green()
-    header.font = Font.mediumSystemFont(16)
+async function createSmallWidget(app) {
+  const w = new ListWidget()
+  w.url = app['link']
 
-    const title = list.addText('Football Bromance')
-    title.textColor = Color.white()
-    title.textOpacity = 0.5
-    title.font = Font.mediumSystemFont(16)
-    list.addSpacer()
+  const header = w.addText(app['itunes:title'])
+  header.textColor = Color.green()
+  header.font = Font.mediumSystemFont(16)
+  
+  const title = w.addText('Football Bromance')
+  title.textColor = Color.white()
+  title.textOpacity = 0.5
+  title.font = Font.mediumSystemFont(16)
+  w.addSpacer()
 
-    const subtitle = list.addText(data[0]['itunes:subtitle'])
+  if(app['pubDate']) {
+    const pubDate = w.addText(formattedPubDate(app['pubDate']))
+    pubDate.textColor = Color.white()
+    pubDate.font = Font.mediumSystemFont(15)
+    pubDate.textOpacity = 0.7
+    pubDate.rightAlignText()
+  }
+
+  return w
+}
+
+async function createMediumWidget(app) {
+  const w = new ListWidget()
+  w.url = app['link']
+
+  const header = w.addText(app['itunes:title'])
+  header.textColor = Color.green()
+  header.font = Font.mediumSystemFont(16)
+
+  const title = w.addText('Football Bromance')
+  title.textColor = Color.white()
+  title.textOpacity = 0.5
+  title.font = Font.mediumSystemFont(16)
+  w.addSpacer()
+
+  if(app['itunes:subtitle']) {
+    const subtitle = w.addText(app['itunes:subtitle'])
     subtitle.textColor = Color.white()
     subtitle.font = Font.mediumSystemFont(15)
-    list.addSpacer()
+    w.addSpacer()
+  }
 
-    const duration = list.addText(formattedPubDate(data[0]['pubDate']) + ' • ' + formattedDuration(data[0]['itunes:duration']))
+  if(app['pubDate'] && app['itunes:duration']) {
+    const duration = w.addText(formattedPubDate(app['pubDate']) + ' • ' + formattedDuration(app['itunes:duration']))
     duration.textColor = Color.white()
     duration.font = Font.mediumSystemFont(15)
     duration.textOpacity = 0.7
     duration.rightAlignText()
-
-    list.url = data[0]['link']
-  } else {
-    list.addSpacer()
-    list.addText("Daten nicht verfügbar")
   }
-  return list
+
+  return w
 }
 
 async function loadData() {
-  let response = await new Request('https://podcast3a6468.podigee.io/feed/aac').loadString()
+  let response = await new Request(FEED_URL).loadString()
   const parser = new XMLParser(response)
 
   let currentValue = null
