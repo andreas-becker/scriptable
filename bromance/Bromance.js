@@ -105,19 +105,19 @@ function formattedPubDate(time) {
       time = +new Date()
   }
   var time_formats = [
-    [60, 'sekunden', 1],
-    [120, 'vor 1 Minute', 'in 1 Minute'],
-    [3600, 'minuten', 60],
-    [7200, 'vor 1 Stunde', 'in 1 Stunde'],
+    [60, 'Sekunden', 1],
+    [120, '1 Minute', '1 Minute'],
+    [3600, 'Minuten', 60],
+    [7200, '1 Stunde', '1 Stunde'],
     [86400, 'Stunden', 3600],
     [172800, 'Gestern', 'Morgen'],
-    [604800, 'Tage', 86400],
+    [604800, 'Tagen', 86400],
     [1209600, 'Letzte Woche', 'Nächste Woche'],
     [2419200, 'Wochen', 604800],
     [4838400, 'Letzten Monat', 'Nächsten Monat'],
-    [29030400, 'Monate', 2419200],
+    [29030400, 'Monaten', 2419200],
     [58060800, 'Letztes Jahr', 'Nächstes Jahr'],
-    [2903040000, 'Jahre', 29030400],
+    [2903040000, 'Jahren', 29030400],
   ]
   var seconds = (+new Date() - time) / 1000,
     token = 'vor',
@@ -128,7 +128,7 @@ function formattedPubDate(time) {
   }
   if (seconds < 0) {
     seconds = Math.abs(seconds)
-    token = 'In'
+    token = 'in'
     list_choice = 2
   }
   var i = 0, format
